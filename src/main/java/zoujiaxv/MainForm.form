@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="zoujiaxv.MainForm">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridBagLayout">
+    <constraints>
+      <xy x="20" y="20" width="1233" height="668"/>
+    </constraints>
+    <properties/>
+    <border type="none" title=""/>
+    <children>
+      <component id="38a3b" class="javax.swing.JLabel" binding="QRCode">
+        <constraints>
+          <grid row="5" column="2" row-span="3" col-span="1" vsize-policy="0" hsize-policy="0" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag top="0" left="20" bottom="0" right="10" weightx="2.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <enabled value="true"/>
+          <text value=""/>
+        </properties>
+      </component>
+      <component id="547cd" class="javax.swing.JLabel" binding="Text1">
+        <constraints>
+          <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag top="0" left="20" bottom="0" right="20" weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <text value="扫描二维码以连接"/>
+        </properties>
+      </component>
+      <component id="5aee2" class="javax.swing.JTextArea" binding="PCInfomation">
+        <constraints>
+          <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="50"/>
+          </grid>
+          <gridbag top="0" left="20" bottom="10" right="10" weightx="0.0" weighty="0.0" ipady="20"/>
+        </constraints>
+        <properties>
+          <text value=""/>
+        </properties>
+      </component>
+      <grid id="144d3" layout-manager="GridBagLayout">
+        <constraints>
+          <grid row="0" column="1" row-span="9" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag top="10" left="10" bottom="10" right="10" weightx="0.0" weighty="0.0" ipadx="300" ipady="200"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="bfeac" class="javax.swing.JList" binding="receivelist">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="2" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="50"/>
+              </grid>
+              <gridbag top="10" left="10" bottom="10" right="10" weightx="1.0" weighty="5.0"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="ecc03" class="javax.swing.JList" binding="sendlist">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="2" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="50"/>
+              </grid>
+              <gridbag top="10" left="10" bottom="10" right="10" weightx="0.0" weighty="5.0"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="25a2a" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag top="10" left="10" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="将文件拖拽此区域即可发送:"/>
+            </properties>
+          </component>
+          <component id="be14b" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag top="10" left="10" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="从选中设备收到的文件:"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <component id="a25b0" class="javax.swing.JButton" binding="config">
+        <constraints>
+          <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <text value="更改配置"/>
+        </properties>
+      </component>
+      <vspacer id="1220">
+        <constraints>
+          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0" ipady="20"/>
+        </constraints>
+      </vspacer>
+      <grid id="86a8b" layout-manager="GridBagLayout">
+        <constraints>
+          <grid row="0" column="0" row-span="9" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="ee88a" class="javax.swing.JList" binding="devicelist" custom-create="true">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="2" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="50"/>
+              </grid>
+              <gridbag top="0" left="5" bottom="20" right="10" weightx="1.0" weighty="5.0"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="9cbde" class="javax.swing.JButton" binding="deleteBtn">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag top="0" left="5" bottom="0" right="10" weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="删除当前设备"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>
