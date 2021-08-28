@@ -38,7 +38,8 @@ public class ManageFile {
                         while(waitsend.size() != 0){
                             for(File f: waitsend){
                                 FileInputStream fis = new FileInputStream(f);
-                                String fileMessage = String.format("Start--%-128s--%012d",ToolUtil.str2HexStr(f.getName()),f.length());
+                                String fileMessage = String.format("Start--%-1003s--%012d",ToolUtil.str2HexStr(f.getName()),f.length());
+                                System.out.println(fileMessage);
                                 dos.write(fileMessage.getBytes(), 0 , fileMessage.getBytes().length);
                                 dos.flush();
 

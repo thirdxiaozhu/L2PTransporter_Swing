@@ -18,12 +18,13 @@ public class ServerListener extends Thread{
         try {
             ServerSocket serverSocket = new ServerSocket(12345);
             Socket socket = null;
-            int count = 0;
             System.out.println("服务端启动");
 
             while(true){
                 socket = serverSocket.accept();
                 InetAddress inetAddress = socket.getInetAddress();
+                System.out.println(socket);
+                System.out.println(inetAddress);
                 ServerThread thread = new ServerThread(socket, inetAddress,mainForm);
                 thread.start();
             }
