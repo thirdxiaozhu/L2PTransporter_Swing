@@ -24,7 +24,6 @@ import java.util.Vector;
 public class MainForm {
     public JPanel mainPanel;
     public JTextArea messages;
-    private JList<DeviceInfo> devicelist;
     private JLabel QRCode;
     private JLabel Text1;
     private JTextArea PCInfomation;
@@ -32,21 +31,18 @@ public class MainForm {
     private JList<String> receivelist;
     private JButton config;
     private JButton deleteBtn;
-    public DefaultListModel<DeviceInfo> listModel;
+    public DefaultListModel<String> listModel;
     public Vector<DeviceInfo> infos;
-    private DeviceInfo isSelected;
-    public ArrayList<DeviceInfo> devicecell;
-    public DefaultListModel<String> defaultModel = new DefaultListModel<>();
-    public Map<DeviceInfo,ServerThread> map;
+    private String isSelected;
+    private JList<String> devicelist;
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
         //添加字符串到list
         listModel = new DefaultListModel<>();
         infos = new Vector<>();
-        devicecell = new ArrayList<>();
         isSelected = null;
-        map = new HashMap<>();
+        //map = new HashMap<>();
         initDeviceList();
     }
 
@@ -54,21 +50,27 @@ public class MainForm {
         initSRLists();
         initQRCode();
         initPCInfo();
+
+        new Thread(){
+            @Override
+            public void run() {
+                new ServerListener(MainForm.this).start("1234");
+            }
+        }.start();
         //启动服务器并绑定窗口
-        new ServerListener(this).start();
 
         deleteBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(isSelected != null) {
                     try {
-                        map.get(isSelected).socket.close();
-                        map.remove(isSelected);
+                        ServerThread currentThread = ServerListener.onLineClient.get(isSelected);
+                        currentThread.stop();
+                        infos.remove(currentThread.deviceInfo);
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }
                     infos.removeElement(isSelected);
-                    devicecell.remove(isSelected);
                     listModel.removeElementAt(devicelist.getSelectedIndex());
                     devicelist.setSelectedIndex(0);
                 }else{
@@ -81,7 +83,7 @@ public class MainForm {
     private void initDeviceList() {
         devicelist = new JList<>(listModel);
         devicelist.setBorder(BorderFactory.createEtchedBorder(0));
-        devicelist.setCellRenderer(new MyListCellRenderer(devicecell));
+        devicelist.setCellRenderer(new MyListCellRenderer(infos));
         devicelist.setPreferredSize(new Dimension(200, 350));
 
         devicelist.addListSelectionListener(new ListSelectionListener() {
@@ -129,25 +131,25 @@ public class MainForm {
     public void deviceAccess(DeviceInfo device) throws AWTException {
         //在设备vector中加入连接进来的设备
         infos.add(device);
-        devicecell.add(device);
-        listModel.addElement(device);
+        listModel.addElement(device.getDeviceIP());
 
         Toolkit.getDefaultToolkit().beep();
         new MessageFrame("有新设备接入");
     }
 
     private void doListValueChange(ListSelectionEvent e){
-        isSelected = (DeviceInfo) devicelist.getSelectedValue();
+        isSelected = devicelist.getSelectedValue();
         if(isSelected != null) {
             //当选择设备改变时，两个列表的绑定的Model也要更新成deviceinfo类里面的model
-            sendlist.setModel(isSelected.sendlistModel);
-            receivelist.setModel(isSelected.receivelistModel);
+            ServerThread currentThread = ServerListener.onLineClient.get(isSelected);
+            sendlist.setModel(currentThread.sendlistModel);
+            receivelist.setModel(currentThread.receivelistModel);
 
             //每次改变选择，设置文件拖拽监听器
-            DropTargetListener listener = new MyDropTargetListener(isSelected);
+            DropTargetListener listener = new MyDropTargetListener(currentThread);
             DropTarget dropTarget = new DropTarget(sendlist, DnDConstants.ACTION_COPY_OR_MOVE, listener, true);
 
-            new MessageFrame("当前设备：" +isSelected.getDeviceName());
+            new MessageFrame("当前设备：" + currentThread.deviceInfo.getDeviceName());
         }else {
             new MessageFrame("当前无选中设备");
         }

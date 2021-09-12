@@ -12,10 +12,10 @@ import java.util.List;
  */
 public class MyDropTargetListener implements DropTargetListener {
     /** 用于显示拖拽的数据 */
-    private DeviceInfo deviceInfo;
+    private ServerThread thread;
 
-    public MyDropTargetListener(DeviceInfo deviceInfo) {
-        this.deviceInfo = deviceInfo;
+    public MyDropTargetListener(ServerThread thread) {
+        this.thread = thread;
     }
 
     @Override
@@ -61,10 +61,9 @@ public class MyDropTargetListener implements DropTargetListener {
                 if (files != null && files.size() > 0) {
                     StringBuilder filePaths = new StringBuilder();
                     for (File file : files) {
-                        //System.out.println(file);
                         filePaths.append("文件: " + file.getAbsolutePath() + "\n");
-                        deviceInfo.sendlistModel.addElement("文件: " + file.getAbsolutePath() + "\n");
-                        deviceInfo.manageFile.addFile(file);
+                        thread.sendlistModel.addElement("文件: " + file.getAbsolutePath() + "\n");
+                        //deviceInfo.manageFile.addFile(file);
                     }
                 }
             }

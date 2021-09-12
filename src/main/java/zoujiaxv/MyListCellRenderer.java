@@ -5,14 +5,15 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 public class MyListCellRenderer extends DefaultListCellRenderer {
 
-    private final ArrayList<DeviceInfo> devicecell;
-    ImageIcon icon;
+    public Vector<DeviceInfo> infos;
+    private ImageIcon icon;
 
-    public MyListCellRenderer(ArrayList<DeviceInfo> devicecell){
-        this.devicecell = devicecell;
+    public MyListCellRenderer(Vector<DeviceInfo> infos){
+        this.infos = infos;
         icon = new ImageIcon("src/image/—Pngtree—mobile phone png smartphone camera_6067590.png");
         icon.setImage(icon.getImage().getScaledInstance(50, 47, Image.SCALE_DEFAULT));
     }
@@ -24,11 +25,16 @@ public class MyListCellRenderer extends DefaultListCellRenderer {
         JLabel label = (JLabel) super.getListCellRendererComponent(
                 list, value, index, isSelected, cellHasFocus);
 
-        label.setText(((DeviceInfo) value).getDeviceName());
-
-        if(((DeviceInfo) value).deviceType == "Phone"){
-            label.setIcon(icon);
+        for (DeviceInfo currentDevice : infos) {
+            if(currentDevice.getDeviceIP().equals((String)value)){
+                label.setText(currentDevice.getDeviceName());
+                if(currentDevice.deviceType == "Phone"){
+                    label.setIcon(icon);
+                }
+                break;
+            }
         }
+
         label.setHorizontalTextPosition(JLabel.RIGHT);
         label.setFont(font);
         return label;

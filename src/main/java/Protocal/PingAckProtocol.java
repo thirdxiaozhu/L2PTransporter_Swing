@@ -5,10 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.ProtocolException;
 
-/**
- * Created by meishan on 16/12/1.
- */
-class PingAckProtocol extends BasicProtocol {
+public class PingAckProtocol extends BasicProtocol {
 
     public static final int PROTOCOL_TYPE = 3;
 

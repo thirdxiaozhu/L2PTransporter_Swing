@@ -16,24 +16,20 @@ public class DeviceInfo {
     private String deviceMac;
     public String deviceUUID;
     public String deviceType;
-    public DefaultListModel<String> sendlistModel;
-    public DefaultListModel<String> receivelistModel;
     public ManageFile manageFile;
-    //public ServerThread st;
+    public String ip;
 
 
     public DeviceInfo(){
         deviceUUID = getUUID32();
         deviceType = "Phone";
-        sendlistModel = new DefaultListModel<>();
-        receivelistModel = new DefaultListModel<>();
         manageFile = new ManageFile();
     }
 
     public String getDeviceName(){
-        System.out.println(deviceName);
         return deviceName;
     }
+
 
     public String getDeviceIP(){
         return deviceIP;
@@ -51,12 +47,4 @@ public class DeviceInfo {
         return UUID.randomUUID().toString().replaceAll("-","").toLowerCase();
     }
 
-    private void addModel(String path, int type){
-        if(type == 0){
-            sendlistModel.addElement(path);
-        }
-        else if(type == 1){
-            receivelistModel.addElement(path);
-        }
-    }
 }
