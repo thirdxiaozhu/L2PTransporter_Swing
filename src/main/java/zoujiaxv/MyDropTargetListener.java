@@ -63,7 +63,7 @@ public class MyDropTargetListener implements DropTargetListener {
                     for (File file : files) {
                         filePaths.append("文件: " + file.getAbsolutePath() + "\n");
                         thread.sendlistModel.addElement("文件: " + file.getAbsolutePath() + "\n");
-                        //deviceInfo.manageFile.addFile(file);
+                        thread.manageFile.addFile(file);
                     }
                 }
             }

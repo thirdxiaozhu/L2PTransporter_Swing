@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,10 +18,10 @@ public class SocketUtil {
     private static Map<Integer, String> msgImp = new HashMap<>();
 
     static {
-        msgImp.put(DataProtocol.PROTOCOL_TYPE, "DataProtocol");       //0
-        msgImp.put(DataAckProtocol.PROTOCOL_TYPE, "DataAckProtocol"); //1
-        msgImp.put(PingProtocol.PROTOCOL_TYPE, "PingProtocol");       //2
-        msgImp.put(PingAckProtocol.PROTOCOL_TYPE, "PingAckProtocol"); //3
+        msgImp.put(DataProtocol.PROTOCOL_TYPE, "DataProtocol");
+        msgImp.put(DataAckProtocol.PROTOCOL_TYPE, "DataAckProtocol");
+        msgImp.put(PingProtocol.PROTOCOL_TYPE, "PingProtocol");
+        msgImp.put(PingAckProtocol.PROTOCOL_TYPE, "PingAckProtocol");
     }
 
     /**
@@ -31,34 +32,46 @@ public class SocketUtil {
      */
     public static BasicProtocol parseContentMsg(byte[] data) {
         int protocolType = BasicProtocol.parseType(data);
-        String className = msgImp.get(protocolType);
         BasicProtocol basicProtocol;
         try {
-            basicProtocol = (BasicProtocol) Class.forName(className).newInstance();
+            switch (protocolType){
+                case DataProtocol.PROTOCOL_TYPE:
+                    basicProtocol = new DataProtocol();
+                    break;
+                case DataAckProtocol.PROTOCOL_TYPE:
+                    basicProtocol = new DataAckProtocol();
+                    break;
+                case PingProtocol.PROTOCOL_TYPE:
+                    basicProtocol = new PingProtocol();
+                    break;
+                case PingAckProtocol.PROTOCOL_TYPE:
+                    basicProtocol = new PingAckProtocol();
+                    break;
+                default:
+                    basicProtocol = null;
+            }
+            //Log.d("Tag", basicProtocol.getClass().toString());
             basicProtocol.parseContentData(data);
         } catch (Exception e) {
             basicProtocol = null;
             e.printStackTrace();
         }
         return basicProtocol;
+
     }
 
     /**
      * 读数据
      *
-     * @param inputStream
      * @return
      */
-    public static BasicProtocol readFromStream(InputStream inputStream) {
+    public static BasicProtocol readFromStream(BufferedInputStream bis) {
         BasicProtocol protocol;
-        BufferedInputStream bis;
 
         //header中保存的是整个数据的长度值，4个字节表示。在下述write2Stream方法中，会先写入header
         byte[] header = new byte[BasicProtocol.LENGTH_LEN];
 
         try {
-            bis = new BufferedInputStream(inputStream);
-
             int temp;
             int len = 0;
             while (len < header.length) {
@@ -103,6 +116,7 @@ public class SocketUtil {
         byte[] header = int2ByteArrays(buffData.length);
         try {
             bufferedOutputStream.write(header);
+            bufferedOutputStream.flush();
             bufferedOutputStream.write(buffData);
             bufferedOutputStream.flush();
         } catch (IOException e) {
@@ -121,7 +135,7 @@ public class SocketUtil {
                 is.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace() ;
         }
     }
 

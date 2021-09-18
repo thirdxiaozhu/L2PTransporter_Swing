@@ -22,11 +22,11 @@ public class DataProtocol extends BasicProtocol implements Serializable {
     private int msgId;
 
 
-    private String data;
+    private byte[] data;
 
     @Override
     public int getLength() {
-        return super.getLength() + PATTION_LEN + DTYPE_LEN + MSGID_LEN + data.getBytes().length;
+        return super.getLength() + PATTION_LEN + DTYPE_LEN + MSGID_LEN + data.length;
     }
 
     @Override
@@ -58,11 +58,11 @@ public class DataProtocol extends BasicProtocol implements Serializable {
         return msgId;
     }
 
-    public String getData() {
+    public byte[] getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(byte[] data) {
         this.data = data;
     }
 
@@ -77,7 +77,7 @@ public class DataProtocol extends BasicProtocol implements Serializable {
         byte[] pattion = {(byte) this.pattion};
         byte[] dtype = {(byte) this.dtype};
         byte[] msgid = SocketUtil.int2ByteArrays(this.msgId);
-        byte[] data = this.data.getBytes();
+        byte[] data = getData();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream(getLength());
         baos.write(base, 0, base.length);          //协议版本＋数据类型＋数据长度＋消息id
@@ -112,11 +112,9 @@ public class DataProtocol extends BasicProtocol implements Serializable {
         pos += MSGID_LEN;
 
         //解析data
-        try {
-            this.data = new String(data, pos, data.length - pos, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        byte[] temp = new byte[data.length - pos];
+        System.arraycopy(data, pos, temp, 0, temp.length);
+        this.data = temp;
 
         return pos;
     }

@@ -23,6 +23,7 @@ public class ServerThread implements Runnable{
     private MainForm mainForm;
     private ResponseCallBack tBack;
     public DeviceInfo deviceInfo;
+    public ManageFile manageFile;
 
     private volatile ConcurrentLinkedQueue<BasicProtocol> dataQueue = new ConcurrentLinkedQueue<>();
     public DefaultListModel<String> sendlistModel;
@@ -50,6 +51,7 @@ public class ServerThread implements Runnable{
             Gson gson = new Gson();
             //反序列化
             deviceInfo = new Gson().fromJson(line, DeviceInfo.class);
+            System.out.println(deviceInfo.getDeviceMac());
             //遍历所有已连接的info， 如果mac地址相等，那么就弹出错误
             for (DeviceInfo currentdevice : mainForm.infos) {
                 if(currentdevice.getDeviceMac().equals(deviceInfo.getDeviceMac())){
@@ -62,6 +64,7 @@ public class ServerThread implements Runnable{
             writer.write(gson.toJson(HostInfo.getHostInfo()) + "\n");
             writer.flush();
 
+            this.manageFile = new ManageFile(this, deviceInfo);
             mainForm.deviceAccess(deviceInfo);
 
             //开启接收线程
@@ -115,7 +118,8 @@ public class ServerThread implements Runnable{
         }
 
         dataQueue.offer(data);
-        toNotifyAll(dataQueue);//有新增待发送数据，则唤醒发送线程
+        //有新增待发送数据，则唤醒发送线程
+        toNotifyAll(dataQueue);
     }
 
     public Socket getConnectdClient(String clientID) {
@@ -135,7 +139,7 @@ public class ServerThread implements Runnable{
         }
     }
 
-    public void toWaitAll(Object o) {
+    public void toWait(Object o) {
         synchronized (o) {
             try {
                 o.wait();
@@ -163,11 +167,13 @@ public class ServerThread implements Runnable{
 
     public class ReciveTask extends Thread {
 
-        private DataInputStream inputStream;
-        private boolean isCancle;
+        private boolean isCancle = false;
+        private InputStream inputStream;
+        private BufferedInputStream bis;
 
         @Override
         public void run() {
+            bis = new BufferedInputStream(inputStream);
             while (!isCancle) {
                 try {
                     if (!isConnected()) {
@@ -178,18 +184,19 @@ public class ServerThread implements Runnable{
                     e.printStackTrace();
                 }
 
-                BasicProtocol clientData = SocketUtil.readFromStream(inputStream);
+                BasicProtocol clientData = SocketUtil.readFromStream(bis);
 
                 if (clientData != null) {
                     if (clientData.getProtocolType() == 0) {
                         System.out.println("dtype: " + ((DataProtocol) clientData).getDtype() + ", pattion: " + ((DataProtocol) clientData).getPattion() + ", msgId: " + ((DataProtocol) clientData).getMsgId() + ", data: " + ((DataProtocol) clientData).getData());
+                        manageFile.addMessage((DataProtocol) clientData);
 
                         DataAckProtocol dataAck = new DataAckProtocol();
                         dataAck.setUnused("收到消息：" + ((DataProtocol) clientData).getData());
                         dataQueue.offer(dataAck);
                         toNotifyAll(dataQueue); //唤醒发送线程
 
-                        tBack.targetIsOnline(userIP);
+                        //tBack.targetIsOnline(userIP);
                     } else if (clientData.getProtocolType() == 2) {
                         System.out.println("pingId: " + ((PingProtocol) clientData).getPingId());
 
@@ -198,7 +205,7 @@ public class ServerThread implements Runnable{
                         dataQueue.offer(pingAck);
                         toNotifyAll(dataQueue); //唤醒发送线程
 
-                        tBack.targetIsOnline(userIP);
+                        //tBack.targetIsOnline(userIP);
                     }
                 } else {
                     System.out.println("client is offline...");
@@ -229,7 +236,7 @@ public class ServerThread implements Runnable{
 
                 BasicProtocol procotol = dataQueue.poll();
                 if (procotol == null) {
-                    toWaitAll(dataQueue);
+                    toWait(dataQueue);
                 } else if (outputStream != null) {
                     synchronized (outputStream) {
                         SocketUtil.write2Stream(procotol, outputStream);

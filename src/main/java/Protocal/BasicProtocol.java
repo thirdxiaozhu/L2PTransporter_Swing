@@ -2,6 +2,7 @@ package Protocal;
 
 import java.io.ByteArrayOutputStream;
 import java.net.ProtocolException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * @author jiaxv

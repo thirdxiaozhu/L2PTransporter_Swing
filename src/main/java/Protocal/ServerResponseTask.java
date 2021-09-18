@@ -1,8 +1,10 @@
 package Protocal;
 
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.InputStream;
 import java.net.Socket;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,7 +68,8 @@ public class ServerResponseTask implements Runnable {
             sendTask.isCancle = true;
             sendTask.interrupt();
             if (sendTask.outputStream != null) {
-                synchronized (sendTask.outputStream) {//防止写数据时停止，写完再停
+                //防止写数据时停止，写完再停
+                synchronized (sendTask.outputStream) {
                     sendTask.outputStream = null;
                 }
             }
@@ -80,7 +83,8 @@ public class ServerResponseTask implements Runnable {
         }
 
         dataQueue.offer(data);
-        toNotifyAll(dataQueue);//有新增待发送数据，则唤醒发送线程
+        //有新增待发送数据，则唤醒发送线程
+        toNotifyAll(dataQueue);
     }
 
     public Socket getConnectdClient(String clientID) {
@@ -100,7 +104,7 @@ public class ServerResponseTask implements Runnable {
         }
     }
 
-    public void toWaitAll(Object o) {
+    public void toWait(Object o) {
         synchronized (o) {
             try {
                 o.wait();
@@ -128,18 +132,20 @@ public class ServerResponseTask implements Runnable {
 
     public class ReciveTask extends Thread {
 
-        private DataInputStream inputStream;
-        private boolean isCancle;
+        private boolean isCancle = false;
+        private InputStream inputStream;
+        private BufferedInputStream bis;
 
         @Override
         public void run() {
+            bis = new BufferedInputStream(inputStream);
             while (!isCancle) {
                 if (!isConnected()) {
                     isCancle = true;
                     break;
                 }
 
-                BasicProtocol clientData = SocketUtil.readFromStream(inputStream);
+                BasicProtocol clientData = SocketUtil.readFromStream(bis);
 
                 if (clientData != null) {
                     if (clientData.getProtocolType() == 0) {
@@ -186,7 +192,7 @@ public class ServerResponseTask implements Runnable {
 
                 BasicProtocol procotol = dataQueue.poll();
                 if (procotol == null) {
-                    toWaitAll(dataQueue);
+                    toWait(dataQueue);
                 } else if (outputStream != null) {
                     synchronized (outputStream) {
                         SocketUtil.write2Stream(procotol, outputStream);

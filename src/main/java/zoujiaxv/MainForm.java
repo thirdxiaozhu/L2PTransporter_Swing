@@ -130,6 +130,7 @@ public class MainForm {
      */
     public void deviceAccess(DeviceInfo device) throws AWTException {
         //在设备vector中加入连接进来的设备
+        System.out.println(device.getDeviceMac());
         infos.add(device);
         listModel.addElement(device.getDeviceIP());
 
@@ -153,5 +154,10 @@ public class MainForm {
         }else {
             new MessageFrame("当前无选中设备");
         }
+    }
+
+    public void receiveFile(String filename){
+        ServerThread currentThread = ServerListener.onLineClient.get(isSelected);
+        currentThread.receivelistModel.addElement("文件: " + filename);
     }
 }

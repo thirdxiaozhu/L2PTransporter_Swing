@@ -16,14 +16,12 @@ public class DeviceInfo {
     private String deviceMac;
     public String deviceUUID;
     public String deviceType;
-    public ManageFile manageFile;
     public String ip;
 
 
     public DeviceInfo(){
         deviceUUID = getUUID32();
         deviceType = "Phone";
-        manageFile = new ManageFile();
     }
 
     public String getDeviceName(){
