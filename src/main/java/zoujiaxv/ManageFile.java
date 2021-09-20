@@ -123,11 +123,7 @@ public class ManageFile {
                             fileName = ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim());
                             serverThread.receivelistModel.addElement("文件: " + fileName);
 
-                            //获取当前系统的“我的文档”文件夹，并生成/cryptogoose文件夹用以存储.keystore文件(Linux下为/home文件夹)
-                            JFileChooser tempfilechooser = new JFileChooser();
-                            FileSystemView fw = tempfilechooser.getFileSystemView();
-                            //拼接字符串，指向我的文档
-                            String tempPath = fw.getDefaultDirectory().toString() + "/l2preceived/" + deviceInfo.getDeviceName().replaceAll(" ", "_");
+                            String tempPath = serverThread.mainForm.filePath + deviceInfo.getDeviceName().replaceAll(" ", "_");
                             System.out.println("TempPath:" + tempPath);
 
                             File defaultPath = new File(tempPath);

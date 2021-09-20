@@ -20,7 +20,7 @@ public class ServerThread implements Runnable{
     private ReciveTask receiveTask;
     private SendTask sendTask;
     public Socket socket;
-    private MainForm mainForm;
+    public MainForm mainForm;
     private ResponseCallBack tBack;
     public DeviceInfo deviceInfo;
     public ManageFile manageFile;
@@ -195,20 +195,15 @@ public class ServerThread implements Runnable{
                         dataAck.setUnused("收到消息：" + ((DataProtocol) clientData).getData());
                         dataQueue.offer(dataAck);
                         toNotifyAll(dataQueue); //唤醒发送线程
-
-                        //tBack.targetIsOnline(userIP);
                     } else if (clientData.getProtocolType() == 2) {
-                        System.out.println("pingId: " + ((PingProtocol) clientData).getPingId());
-
                         PingAckProtocol pingAck = new PingAckProtocol();
                         pingAck.setUnused("收到心跳");
                         dataQueue.offer(pingAck);
                         toNotifyAll(dataQueue); //唤醒发送线程
-
-                        //tBack.targetIsOnline(userIP);
                     }
                 } else {
                     System.out.println("client is offline...");
+                    mainForm.deviceDisconnect(userIP);
                     break;
                 }
             }

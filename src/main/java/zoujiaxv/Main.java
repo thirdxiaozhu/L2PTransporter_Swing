@@ -1,12 +1,14 @@
 package zoujiaxv;
 
 import com.formdev.flatlaf.FlatIntelliJLaf;
+import org.dom4j.DocumentException;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.net.UnknownHostException;
 
 public class Main {
-    private static void createGUI() throws UnknownHostException {
+    private static void createGUI() throws IOException, DocumentException {
         FlatIntelliJLaf.install();
         JFrame frame = new JFrame("L2P文件传输");
         frame.setContentPane(new MainForm().mainPanel);
@@ -29,7 +31,7 @@ public class Main {
             public void run() {
                 try {
                     createGUI();
-                } catch (UnknownHostException e) {
+                } catch (IOException | DocumentException e) {
                     e.printStackTrace();
                 }
             }

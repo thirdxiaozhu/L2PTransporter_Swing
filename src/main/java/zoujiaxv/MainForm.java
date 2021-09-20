@@ -1,22 +1,24 @@
 package zoujiaxv;
 
 import com.google.gson.Gson;
+import org.dom4j.*;
+import org.dom4j.io.SAXReader;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * @author jiaxv
@@ -35,6 +37,10 @@ public class MainForm {
     public Vector<DeviceInfo> infos;
     private String isSelected;
     private JList<String> devicelist;
+    public String configPath;
+    public String port;
+    public String filePath;
+
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
@@ -46,7 +52,9 @@ public class MainForm {
         initDeviceList();
     }
 
-    public MainForm() throws UnknownHostException {
+    public MainForm() throws IOException, DocumentException {
+        initConfigPath();
+        initDom();
         initSRLists();
         initQRCode();
         initPCInfo();
@@ -54,7 +62,7 @@ public class MainForm {
         new Thread(){
             @Override
             public void run() {
-                new ServerListener(MainForm.this).start("1234");
+                new ServerListener(MainForm.this).start(port);
             }
         }.start();
         //启动服务器并绑定窗口
@@ -78,6 +86,31 @@ public class MainForm {
                 }
             }
         });
+
+        config.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame frame = new JFrame("设置");
+                frame.setContentPane(new SettingForm(MainForm.this, frame).MyPanel);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.pack();
+                frame.setSize(700,500);
+                frame.setLocation(550 , 350); //在屏幕中间显示
+                frame.setVisible(true);
+                frame.setLayout(null);
+                frame.setLocationRelativeTo(null);
+
+                frame.setResizable(false);
+            }
+        });
+    }
+
+    private void initConfigPath(){
+        //获取当前系统的“我的文档”文件夹，并生成/cryptogoose文件夹用以存储.keystore文件(Linux下为/home文件夹)
+        JFileChooser tempfilechooser = new JFileChooser();
+        FileSystemView fw = tempfilechooser.getFileSystemView();
+        //拼接字符串，指向我的文档
+        configPath = fw.getDefaultDirectory().toString() + "/l2preceived/";
     }
 
     private void initDeviceList() {
@@ -101,7 +134,8 @@ public class MainForm {
         try {
             QRCode.setSize(300,150);
             QRCode.setText("");
-            QRCode.setIcon(QRCodeUtil.encode(HostInfo.getHostInfo().hostIP));
+            QRCode.setIcon(QRCodeUtil.encode(HostInfo.getHostInfo().hostIP + ":" + port));
+            System.out.println(HostInfo.getHostInfo().hostIP + ":" + port);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -123,6 +157,42 @@ public class MainForm {
         receivelist.setPreferredSize(new Dimension(400, 100));
     }
 
+    private void initDom() throws IOException, DocumentException {
+
+        File defaultDir = new File(configPath);
+        //如果我的文档目录下没有设置文件夹，那么就创建一个
+        if(!defaultDir.exists() && !defaultDir.isDirectory()) {
+            defaultDir.mkdir();
+        }
+
+        File defaultXml = new File(configPath + "/config.xml");
+        if(!defaultXml.exists()) {
+            Document new_document = DocumentHelper.createDocument();
+            Element root = new_document.addElement("root");
+
+            root.addElement("port")
+                    .addAttribute("value", "1234");
+            root.addElement("filepath")
+                    .addAttribute("value", configPath);
+
+            FileWriter out = new FileWriter(configPath + "/config.xml");
+            new_document.write(out);
+            out.close();
+        }
+
+        Document configXml = new SAXReader().read(configPath + "/config.xml");
+        Element root = configXml.getRootElement();
+        port = configXml.getRootElement().element("port").attribute("value").getStringValue();
+        filePath = configXml.getRootElement().element("filepath").attribute("value").getStringValue();
+
+        //如果用户自定义的文件夹不存在，那么就创建一个
+        File customDir = new File(filePath);
+        if(!customDir.exists() && !customDir.isDirectory()) {
+            customDir.mkdir();
+        }
+
+    }
+
 
     /**
      * 每当有设备接入，向列表添加设备
@@ -136,6 +206,20 @@ public class MainForm {
 
         Toolkit.getDefaultToolkit().beep();
         new MessageFrame("有新设备接入");
+    }
+
+
+    public void deviceDisconnect(String IP){
+        try {
+            ServerThread currentThread = ServerListener.onLineClient.get(IP);
+            currentThread.stop();
+            infos.remove(currentThread.deviceInfo);
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+        infos.removeElement(isSelected);
+        listModel.removeElement(IP);
+        devicelist.setSelectedIndex(0);
     }
 
     private void doListValueChange(ListSelectionEvent e){
